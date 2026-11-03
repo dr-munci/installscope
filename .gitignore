@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Ham olay kayıtları büyük olabilir; yalnızca örnekler commit'lenir
+*.jsonl
+!samples/*.jsonl
+
+# Ölçüm ara çıktıları (CSV sonuçları commit'lenir)
+bench/tmp/
+
+# Editör
+.vscode/
+.idea/
+*.swp
