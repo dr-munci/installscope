@@ -70,16 +70,18 @@ KG1 (`kill -9` → yarım veri yok, bozuk son satır tolere edilir) öncelikli. 
 
 ## 4. Haftalık plan
 
-| Hafta | Tarih | İş | Çıktı |
-|---|---|---|---|
-| H1 | → 12.11 | Repo iskeleti, README (YZ beyanı), bu öneri; VM'de bcc kurulumu | **K1** |
-| H2 | 13.11 – 19.11 | Collector v0: `execve` + `openat` + `connect` tek JSONL akışında | `collector/` |
-| H3 | 20.11 – 26.11 | M1 ölçüm betiği, 5 tekrar, CSV | **K2** |
-| H4 | 27.11 – 03.12 | Process ağacı (büküm), orphan işaretleme | `tree/` |
-| H5 | 04.12 – 10.12 | Pano v0.5, video, ara rapor | **K3**, `v0.5` |
-| H6 | 11.12 – 17.12 | M2 (npm/pip/apt), strace ve /proc kanıtı | `bench/` |
-| H7 | 18.12 – 24.12 | M3, kırılma testleri (KG1, KG4, KG5) | |
-| H8 | 25.12 → | Final rapor, savunma hazırlığı | **K4–K5** |
+| Hafta | ISO hafta | Tarih | İş | Çıktı |
+|---|---|---|---|---|
+| H1 | W45–W46 | 02.11 – 12.11 | Repo iskeleti, README (YZ beyanı), bu öneri; VM'de bcc kurulumu | **K1** |
+| H2 | W46–W47 | 12.11 – 22.11 | Collector v0: `execve` + `openat` + `connect` tek JSONL akışında | `collector/` |
+| H3 | W48 | 23.11 – 29.11 | M1 ölçüm betiği, 5 tekrar, CSV | **K2** (26.11) |
+| H4 | W49 | 30.11 – 06.12 | Process ağacı (büküm), orphan işaretleme | `tree/` |
+| H5 | W50 | 07.12 – 13.12 | Pano v0.5, video, ara rapor | **K3** (10.12), `v0.5` |
+| H6 | W51 | 14.12 – 20.12 | M2 (npm/pip/apt), strace ve /proc kanıtı | `bench/` |
+| H7 | W52 | 21.12 – 27.12 | M3, kırılma testleri (KG1, KG4, KG5) | |
+| H8 | W53 | 28.12 → | Final rapor, savunma hazırlığı | **K4–K5** |
+
+Her hafta en az bir commit atılır (kural 5); takip `docs/ilerleme.md` ve `tools/takip.py` ile yapılır.
 
 ## 5. Güvenlik ve etik
 İzleme yalnızca kendi VM'imde yapılır. Okul ağı, başka sistemler ya da internetteki sunucular izlenmez. Toplanan JSONL dosyaları yerel kalır; repoya yalnızca küçük, kişisel bilgi içermeyen örnekler konur.

@@ -27,7 +27,9 @@ kurulum komutu ──► collector/ (bcc, eBPF) ──► olaylar.jsonl ──�
 | `tree/` | pid/ppid ile ağacı kurar, olayları düğümlere bağlar, yetim (orphan) process'leri işaretler. |
 | `dashboard/` | Solda ağaç, sağda zaman çizelgesi; filtre ve özet sayılar. |
 | `bench/` | Ölçüm betikleri (5 tekrar) ve CSV sonuçları. |
-| `docs/` | Öneri (K1), ara rapor (K3), final rapor. |
+| `docs/` | Öneri (K1), ara rapor (K3), final rapor, [ilerleme takibi](docs/ilerleme.md). |
+| `tools/` | `takip.py`: commit'leri haftalara göre sayıp planla karşılaştırır. |
+| `.claude/agents/` | Geliştirmede kullanılan YZ alt ajanlarının tanımları (bkz. YZ beyanı). |
 
 ## Ortam
 
@@ -59,3 +61,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | Hafta | Dosya / iş | YZ'nin katkısı |
 |---|---|---|
 | H1 | README, klasör iskeleti, `docs/K1-oneri.md` | taslak metin; içerik ve plan tarafımdan gözden geçirildi |
+| H1 | `.claude/agents/`, `tools/takip.py`, `docs/ilerleme.md` | alt ajan tanımları ve takip betiği taslağı; plan tarafımdan gözden geçirildi |
