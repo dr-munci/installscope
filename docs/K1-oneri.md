@@ -28,7 +28,7 @@ Bir programı kurduğumuzda (`pip install requests` gibi) bilgisayarda arka plan
 ### 1.5 Riskler neler?
 | Risk | Olasılık | Etki | Önlem |
 |---|---|---|---|
-| bcc / çekirdek başlığı uyumsuzluğu (Ubuntu 24.04) | ~~orta~~ **gerçekleşti** | yüksek | **Kapandı (H1):** çekirdek 7.0'da hazır `execsnoop-bpfcc` derlenmedi; kendi programımızda `cflags=["-fms-extensions"]` ile çözüldü. Ayrıntı: [ortam.md](ortam.md) |
+| bcc / çekirdek başlığı uyumsuzluğu (yeni çekirdek) | ~~orta~~ **gerçekleşti** | yüksek | **Kapandı (H1):** çekirdek 7.0'da hazır `execsnoop-bpfcc` derlenmedi; kendi programımızda `cflags=["-fms-extensions"]` ile çözüldü. Ayrıntı: [ortam.md](ortam.md) |
 | Perf buffer'da olay kaybı | orta | orta | Buffer boyutunu büyütmek, kayıpları saymak ve panoda göstermek (M3, KG4) |
 | Kısa ömürlü process'lerin ppid'inin kaçırılması | yüksek | orta | ppid'i çekirdek tarafında `task->real_parent`'tan okumak, yine de kaçanları orphan saymak |
 | Ağaç kurulumunun uzaması | orta | yüksek | B planı (aşağıda) |
@@ -37,7 +37,7 @@ Bir programı kurduğumuzda (`pip install requests` gibi) bilgisayarda arka plan
 **B planı:** Ağaç zamanında bitmezse kapsam **olay sayıları ve düz zaman çizelgesine** (ağaçsız) indirilir. Collector ve ölçümler bundan etkilenmez; Seviye 1 ve 2 korunur.
 
 ### 1.6 Maliyeti ne?
-Ek donanım ya da para gerekmez. Kendi bilgisayarımda bir Ubuntu 24.04 VM'i ve açık kaynak araçlar (bcc, Python 3, tarayıcı) yeter. Asıl maliyet zaman: haftada yaklaşık 6–8 saat, toplam 7–8 hafta.
+Ek donanım ya da para gerekmez. Kendi bilgisayarımda bir Ubuntu VM'i (26.04.1 LTS) ve açık kaynak araçlar (bcc, Python 3, tarayıcı) yeter. Asıl maliyet zaman: haftada yaklaşık 6–8 saat, toplam 7–8 hafta.
 
 ### 1.7 Ne kadar sürer?
 Aşağıdaki haftalık plana göre K3'te (10.12) çalışan çekirdek, ardından ölçümler ve kırılma testleriyle final.

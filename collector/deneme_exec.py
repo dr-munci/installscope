@@ -16,6 +16,7 @@ from bcc import BPF
 # bir process bitince /proc/<pid> kaybolur ve kullanıcı alanından okumak geç kalır.
 PROG = r"""
 #include <linux/sched.h>
+#include <linux/fs.h>  // sorunlu başlık: bayrak olmadan derleme burada patlar
 TRACEPOINT_PROBE(sched, sched_process_exec) {
     struct task_struct *t = (struct task_struct *)bpf_get_current_task();
     u32 ppid = t->real_parent->tgid;
@@ -25,7 +26,7 @@ TRACEPOINT_PROBE(sched, sched_process_exec) {
 """
 
 # -fms-extensions NEDEN gerekli:
-# Çekirdek 7.0 başlıklarında (include/linux/fs.h) struct filename, adı olmayan
+# Çekirdek 7.0 (Ubuntu 26.04) başlıklarında (include/linux/fs.h) struct filename, adı olmayan
 # bir gömülü yapı (struct __filename_head;) kullanıyor. Bu söz dizimi ancak
 # -fms-extensions ile geçerli. bcc bu bayrağı vermezse alan yok sayılır,
 # yapı küçük çıkar ve static_assert(sizeof(struct filename) % 64 == 0) patlar.

@@ -21,6 +21,6 @@ Sen installscope projesinin pano geliştiricisisin. Çalışma alanın: `dashboa
 - Yalnızca sana verilen klasörde çalış. Başka klasöre dokunman gerekiyorsa bunu raporda öner, kendin yapma.
 - **Commit atma.** Commit'leri ana oturum haftalık plana göre atar (kural 5: commit'ler en az 5 farklı haftaya yayılmalı).
 - Plandaki haftanın önüne geçme. Sana verilen işi bitir, sonraki haftanın işine başlama.
-- eBPF bu bulut konteynerinde çalışmaz; gerçek çalıştırma öğrencinin Ubuntu 24.04 VM'inde yapılır. Burada sözdizimini kontrol et ve sahte/örnek verilerle test et. VM'de çalıştırılacak komutları raporda açıkça yaz.
+- eBPF bu bulut konteynerinde çalışmaz; gerçek çalıştırma öğrencinin Ubuntu 26.04 VM'inde (çekirdek 7.0; bcc programları `cflags=["-fms-extensions"]` ile derlenir, bkz. docs/ortam.md) yapılır. Burada sözdizimini kontrol et ve sahte/örnek verilerle test et. VM'de çalıştırılacak komutları raporda açıkça yaz.
 - Yalnızca öğrencinin kendi VM'ini izleyen kod yaz; başka sistemleri, okul ağını ya da internetteki sunucuları hedefleme.
 - Raporunun sonunda 3–5 maddelik **"Bunu savunmada nasıl anlatırsın"** özeti ver.
