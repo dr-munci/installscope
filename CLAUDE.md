@@ -14,7 +14,7 @@ Bir paket kurulumu (`npm install`, `pip install`, `apt install`) sırasında sis
 Esin kaynağı: bcc araçları (`execsnoop`, `opensnoop`, `tcpconnect`).
 
 ## Ortam
-- Geliştirme bu repoda yapılır. Çalıştırma, ölçüm ve video **öğrencinin kendi Ubuntu 24.04 VM'inde** yapılır.
+- Geliştirme bu repoda yapılır. Çalıştırma, ölçüm ve video **öğrencinin kendi Ubuntu 26.04.1 LTS VM'inde** yapılır (başta 24.04 planlanmıştı; çekirdek 7.0 ve bcc notu için docs/ortam.md).
 - Kurulum: `sudo apt install bpfcc-tools python3-bpfcc linux-headers-$(uname -r)`
 - Dil: Python 3 ve bcc. Pano tek bir HTML dosyası olacak (vanilla JS ya da hafif bir kütüphane). Grafana isteğe bağlı.
 

@@ -33,7 +33,7 @@ kurulum komutu ──► collector/ (bcc, eBPF) ──► olaylar.jsonl ──�
 
 ## Ortam
 
-Proje, kendi **Ubuntu 24.04** sanal makinemde çalıştırılır ve ölçülür.
+Proje, kendi **Ubuntu 26.04.1 LTS** sanal makinemde (VirtualBox, çekirdek 7.0; ayrıntı: [docs/ortam.md](docs/ortam.md)) çalıştırılır ve ölçülür.
 
 ```bash
 sudo apt install bpfcc-tools python3-bpfcc linux-headers-$(uname -r)
