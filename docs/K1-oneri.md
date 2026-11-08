@@ -28,7 +28,7 @@ Bir programı kurduğumuzda (`pip install requests` gibi) bilgisayarda arka plan
 ### 1.5 Riskler neler?
 | Risk | Olasılık | Etki | Önlem |
 |---|---|---|---|
-| bcc / çekirdek başlığı uyumsuzluğu (Ubuntu 24.04) | orta | yüksek | H1'de ortamı kurup `execsnoop` ile doğrulamak |
+| bcc / çekirdek başlığı uyumsuzluğu (Ubuntu 24.04) | ~~orta~~ **gerçekleşti** | yüksek | **Kapandı (H1):** çekirdek 7.0'da hazır `execsnoop-bpfcc` derlenmedi; kendi programımızda `cflags=["-fms-extensions"]` ile çözüldü. Ayrıntı: [ortam.md](ortam.md) |
 | Perf buffer'da olay kaybı | orta | orta | Buffer boyutunu büyütmek, kayıpları saymak ve panoda göstermek (M3, KG4) |
 | Kısa ömürlü process'lerin ppid'inin kaçırılması | yüksek | orta | ppid'i çekirdek tarafında `task->real_parent`'tan okumak, yine de kaçanları orphan saymak |
 | Ağaç kurulumunun uzaması | orta | yüksek | B planı (aşağıda) |
