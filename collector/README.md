@@ -52,4 +52,18 @@ sudo python3 collector/collector.py --root -o apt.jsonl -- apt-get install -y co
 
 Bulunan hata: ilk `open` satırları (`/etc/nsswitch.conf`, `/etc/passwd`, `/proc/sys/kernel/ngroups_max`) pip'e değil, çocuğun `exec` öncesi kimlik değiştirmesine aitti. Kök çok erken izlemeye alınıyordu. Düzeltme: iki borulu el sıkışma (yukarıda 2. adım).
 
+## İkinci deneme (09.11, düzeltmeden sonra)
+
+| exec | open | connect | kayıp | çıkış kodu |
+|---|---|---|---|---|
+| 9 | 466 | 20 | 0 | 0 |
+
+İlk olay artık `exec /home/vboxuser/deneme/bin/pip`. Gözlemler:
+
+1. **pip başka programlar çalıştırıyor:** `pip → lsb_release → getopt, cut, tr`. pip, PyPI'ye gönderdiği User-Agent için işletim sistemi bilgisini `lsb_release` ile topluyor.
+2. **Bağlantılar:** önce `127.0.0.53:53` (systemd-resolved, DNS), sonra `151.101.x.x:443` (PyPI'nin CDN'i, HTTPS).
+3. **Olaylar dosyaya zaman sırasıyla gelmiyor:** `cut` (pid 12768) dosyada `tr`'den (12769) önce, ama `ts_ns`'si daha büyük. Perf buffer her CPU için ayrı; farklı CPU'lardaki olaylar karışık sırayla okunur. → Ağaç ve pano olayları `ts_ns`'ye göre sıralamalı.
+4. **exec etmeyen process'ler var:** `cut` ve `tr`'nin ebeveyni 12766 için exec satırı yok; `lsb_release` kabuk betiğinin fork ettiği bir alt kabuk. → Ağaç düğümleri yalnızca exec'ten değil, her olayın pid/ppid'inden oluşturulmalı (H4).
+5. **open sayısı 657 → 466:** farkın yalnızca 3'ü düzeltmeden. Geri kalanı büyük ihtimalle ilk çalıştırmada oluşan `.pyc` önbelleği. → M1/M2'de her tekrar temiz bir venv ile yapılmalı.
+
 Durum: **v0 VM'de çalışıyor (H2).**
