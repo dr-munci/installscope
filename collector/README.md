@@ -21,7 +21,7 @@ sudo python3 collector/collector.py --root -o apt.jsonl -- apt-get install -y co
 ## Nasıl çalışır
 
 1. `izleyici.c` derlenip çekirdeğe yüklenir (`cflags=["-fms-extensions"]`, çekirdek 7.0 için).
-2. Komut `fork` edilir ama `exec` etmeden bir boruyu (pipe) okuyarak bekler. Böylece kökün PID'i probe'lar hazır olmadan önce bilinir ve hiçbir olay kaçmaz.
+2. Komut `fork` edilir. Çocuk önce kullanıcı kimliğine döner, "hazırım" der ve `exec` etmeden bir boruyu (pipe) okuyarak bekler. Böylece kökün PID'i komut başlamadan bilinir, hiçbir olay kaçmaz ve collector'ın kendi hazırlık işleri (ör. `/etc/passwd` okuması) kayda girmez.
 3. Kök PID `izlenen` eBPF haritasına yazılır. `sched_process_fork` her yeni çocuğu bu haritaya ekler, `sched_process_exit` çıkanı siler. Ağaç dışındaki olaylar çekirdekte elenir.
 4. Çocuğa "başla" denir. Olaylar perf buffer üzerinden gelir ve her satır yazıldıktan sonra `flush` edilir (KG1).
 
@@ -42,4 +42,14 @@ sudo python3 collector/collector.py --root -o apt.jsonl -- apt-get install -y co
 - `open`, `openat2`, `creat` gibi diğer dosya çağrıları ve UNIX soketleri yok.
 - Collector Ctrl+C ile durdurulursa çalışan komut kendi başına devam eder.
 
-Durum: **v0 yazıldı (H2).** VM'de ilk deneme bekleniyor.
+## İlk deneme (09.11, VM)
+
+`sudo python3 collector/collector.py -o pip.jsonl -- ~/deneme/bin/pip install --no-cache-dir requests`
+
+| exec | open | connect | kayıp | çıkış kodu |
+|---|---|---|---|---|
+| 9 | 657 | 20 | 0 | 0 |
+
+Bulunan hata: ilk `open` satırları (`/etc/nsswitch.conf`, `/etc/passwd`, `/proc/sys/kernel/ngroups_max`) pip'e değil, çocuğun `exec` öncesi kimlik değiştirmesine aitti. Kök çok erken izlemeye alınıyordu. Düzeltme: iki borulu el sıkışma (yukarıda 2. adım).
+
+Durum: **v0 VM'de çalışıyor (H2).**
