@@ -63,3 +63,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | H1 | README, klasör iskeleti, `docs/K1-oneri.md` | taslak metin; içerik ve plan tarafımdan gözden geçirildi |
 | H1 | `.claude/agents/`, `tools/takip.py`, `docs/ilerleme.md` | alt ajan tanımları ve takip betiği taslağı; plan tarafımdan gözden geçirildi |
 | H1 | `collector/deneme_exec.py`, `docs/ortam.md` | derleme hatasının nedenini (`-fms-extensions`) bulma ve deneme programı; VM'de çalıştırma ve doğrulama tarafımdan |
+| H2 | `collector/izleyici.c`, `collector/collector.py` | collector v0 kodu ve yorumları; VM'de çalıştırma ve doğrulama tarafımdan |
