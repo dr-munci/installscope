@@ -66,24 +66,38 @@ def komutu_hazirla(komut, root_kalsin):
 
     Neden bekletiyoruz: Kökün PID'ini eBPF haritasına probe'lar yüklendikten
     SONRA ama komut çalışmaya başlamadan ÖNCE koymamız gerek. Yoksa ilk
-    olaylar kaçar. Çocuk bir boruyu (pipe) okuyarak bekler; ebeveyn hazır
-    olunca boruya bir bayt yazar ve çocuk exec eder.
+    olaylar kaçar.
+
+    İki boru (pipe) ile el sıkışma:
+      1. çocuk kimliğini değiştirir (/etc/passwd okur) ve "hazırım" der,
+      2. ebeveyn kökü ancak bundan SONRA izlemeye alır ve "başla" der,
+      3. çocuk exec eder.
+    Neden: kimlik değiştirmek için açılan dosyalar collector'ın kendi işi,
+    kurulumun değil. Kök erken izlenirse bunlar yanlışlıkla kayda girer
+    (ilk denemede /etc/passwd, /etc/nsswitch.conf böyle görünmüştü).
     """
-    oku, yaz = os.pipe()
+    hazir_oku, hazir_yaz = os.pipe()  # çocuk → ebeveyn: "hazırım"
+    basla_oku, basla_yaz = os.pipe()  # ebeveyn → çocuk: "başla"
     pid = os.fork()
     if pid == 0:  # --- çocuk ---
-        os.close(yaz)
-        os.read(oku, 1)  # ebeveyn "başla" diyene kadar burada bloklanır
-        os.close(oku)
+        os.close(hazir_oku)
+        os.close(basla_yaz)
         if not root_kalsin:
             kullaniciya_don()
+        os.write(hazir_yaz, b"h")
+        os.close(hazir_yaz)
+        os.read(basla_oku, 1)  # ebeveyn "başla" diyene kadar burada bloklanır
+        os.close(basla_oku)
         try:
             os.execvp(komut[0], komut)
         except OSError as e:
             print(f"komut çalıştırılamadı: {e}", file=sys.stderr)
             os._exit(127)
-    os.close(oku)  # --- ebeveyn ---
-    return pid, yaz
+    os.close(hazir_yaz)  # --- ebeveyn ---
+    os.close(basla_oku)
+    os.read(hazir_oku, 1)  # çocuk kimliğini değiştirene kadar bekle
+    os.close(hazir_oku)
+    return pid, basla_yaz
 
 
 def detay_olustur(ev):
