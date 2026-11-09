@@ -9,8 +9,8 @@ python3 tools/takip.py --ref origin/main
 
 | ISO hafta | Tarih | Plan | İş | Teslim | Durum |
 |---|---|---|---|---|---|
-| W45 | 02.11 – 08.11 | H1 | Repo iskeleti, README (YZ beyanı), K1 önerisi | | tamam |
-| W46 | 09.11 – 15.11 | H1/H2 | VM'de bcc kurulumu, K1 son okuma; collector başlangıcı | **K1 · 12.11** | |
+| W45 | 02.11 – 08.11 | H1 | Repo iskeleti, README (YZ beyanı), K1 önerisi | | tamam (+ VM ortamı, bcc sorunu çözüldü) |
+| W46 | 09.11 – 15.11 | H1/H2 | VM'de bcc kurulumu, K1 son okuma; collector başlangıcı | **K1 · 12.11** | collector v0 yazıldı |
 | W47 | 16.11 – 22.11 | H2 | Collector v0: execve + openat + connect tek JSONL | | |
 | W48 | 23.11 – 29.11 | H3 | M1 ölçümü (5+5 tekrar, CSV) | **K2 · 26.11** | |
 | W49 | 30.11 – 06.12 | H4 | Process ağacı (büküm), orphan işaretleme | | |
