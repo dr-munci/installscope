@@ -62,12 +62,27 @@ Notlar:
 - **İS kanıtı:** `strace -f -c` sayımlarını eBPF sayımlarıyla karşılaştır; `/proc/<pid>/status` içindeki PPid değerinin ağaçla tutarlılığını kontrol et.
 
 ## Kırılma testleri (savunmada biri uygulanır)
-- **KG1** `kill -9` collector'a: veri yarım kalmasın. JSONL satır satır flush edilsin; ağaç kurucu bozuk son satırı tolere etsin.
-- **KG2** Disk dolu: yazma hatası yakalansın, anlamlı bir mesaj verilsin.
-- **KG3** `MemoryMax=64M`: collector'ın davranışı ölçülsün.
-- **KG4** `CPUQuota=20%`: kaybolan olaylar sayılsın ve panoda gösterilsin.
-- **KG5** Yapılandırma dosyasına `chmod 000`: anlamlı bir hata verilsin.
-- **KG6** `renice 19` ve ek yük: gecikme ve kayıp ölçülsün.
+Proje **Genel** grubunda: yalnızca KG1–KG6 uygulanır (A, B, C grup kartları uygulanmaz). Kartların ders tablosundaki hâli ve bizim beklentimiz:
+- **KG1** Servisin process'ini `kill -9` ile öldürür → veri yarım kalmasın. JSONL satır satır flush edilsin; ağaç kurucu bozuk son satırı tolere etsin.
+- **KG2** Diski doldurur (`fallocate -l 10G /var/tmp/dolu`) → yazma hatası yakalansın, anlamlı bir mesaj verilsin.
+- **KG3** Belleği kısar (`systemd-run -p MemoryMax=64M` ya da cgroup `memory.max`) → collector'ın davranışı ölçülsün.
+- **KG4** CPU'yu kısar (`CPUQuota=20%`) ya da rakip yük başlatır → kaybolan olaylar sayılsın ve panoda gösterilsin.
+- **KG5** Yapılandırma dosyasının iznini kaldırır (`chmod 000`) → anlamlı bir hata verilsin. **Bunun için collector'ın bir ayar dosyası olmalı (W47).**
+- **KG6** Process'i en düşük önceliğe iter (`renice 19`) ve yük ekler → gecikme ve kayıp ölçülsün.
+- Seviye 3 ayrıca **ağ kesintisini** sayar: pip internete bağlandığı için ağ yokken collector düzgün bitmeli ve çıkış kodunu kaydetmeli.
+
+## Puanlama notları (ders tablosundan)
+- Bireysel puan = proje puanı × **savunma katsayısı (0,50–1,00)**. Katsayı **iki savunma sorusu ve Git geçmişine** bakılarak verilir.
+- Proje bonus olarak hesaplanır: `B* = (bireysel proje puanı / 100) × 20 × (yazılı final / 100)`, `Nihai = Final + B*` (en çok 100).
+
+## Git iş akışı (zorunlu)
+Git geçmişi savunma katsayısına girdiği için `main`'deki commit'lerin **yazarı öğrenci** olmalı.
+1. Claude değişiklikleri yalnızca `claude/...` çalışma dalına push eder. `main`'e commit atmaz, PR birleştirmez.
+2. Öğrenci VM'de değişikliği okur, çalıştırır, sonra kendi kimliğiyle `main`'e alır:
+   `git merge --squash origin/<dal>` → `git commit` → `git push`.
+3. Commit mesajının sonunda YZ desteği için `Co-Authored-By: Claude` satırı bulunur (README'deki beyanla tutarlı).
+4. VM'de üretilen sonuçlar (CSV, gözlem notları) doğrudan öğrencinin commit'leridir.
+5. Geçmiş yeniden yazılmaz. 03.11–09.11 arasındaki ilk 8 commit'in yazarı Claude'dur; bu README'deki YZ beyanında belirtilir.
 
 ## Haftalık plan
 - **H1 (→12.11):** Repo iskeleti, README (YZ beyanı dahil), docs/K1-oneri.md (Heilmeier soruları, plan, risk ve B planı)

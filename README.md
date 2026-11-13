@@ -56,6 +56,7 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 
 - **Nerede kullanıldı:** repo iskeleti, belge taslakları ve kod taslakları. Her aşamada hangi dosyalarda kullanıldığı aşağıdaki tabloya eklenecek.
 - **Nasıl kullanıldı:** YZ'nin ürettiği her parçayı okuyup anladım, kendi VM'imde çalıştırıp test ettim ve gerektiğinde değiştirdim. Kod, savunmada satır satır anlatılabilecek kadar küçük parçalar hâlinde ve Türkçe yorumlu tutuldu.
+- **Git geçmişi:** 03.11–09.11 arasındaki ilk commit'lerin yazarı Claude olarak görünür. 13.11'den itibaren YZ'nin hazırladığı değişiklikleri VM'de okuyup çalıştırdıktan sonra kendi adımla commit'liyorum; bu commit'lerde Claude `Co-Authored-By` satırıyla belirtilir.
 - **Neyi YZ yapmadı:** ölçümler, VM üzerindeki çalıştırmalar, video ve sonuçların yorumu bana aittir.
 
 | Hafta | Dosya / iş | YZ'nin katkısı |
@@ -64,3 +65,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | H1 | `.claude/agents/`, `tools/takip.py`, `docs/ilerleme.md` | alt ajan tanımları ve takip betiği taslağı; plan tarafımdan gözden geçirildi |
 | H1 | `collector/deneme_exec.py`, `docs/ortam.md` | derleme hatasının nedenini (`-fms-extensions`) bulma ve deneme programı; VM'de çalıştırma ve doğrulama tarafımdan |
 | H2 | `collector/izleyici.c`, `collector/collector.py` | collector v0 kodu ve yorumları; VM'de çalıştırma ve doğrulama tarafımdan |
+| H2 | `CLAUDE.md` (ders tablosu kuralları, Git iş akışı), `tools/takip.py` | kuralların eklenmesi ve takip betiğinin yazar sayımı; Git iş akışı kararı tarafımdan |

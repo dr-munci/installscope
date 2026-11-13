@@ -20,7 +20,7 @@ Her test için tek bir betik ve beklenen davranışı yazan kısa bir açıklama
 - Bu bir öğrenci projesi ve kod savunmada satır satır anlatılacak. Küçük, okunur fonksiyonlar yaz; gereksiz soyutlama yapma.
 - Her önemli fonksiyona ne yaptığını ve **neden** öyle yaptığını anlatan kısa bir Türkçe yorum ekle.
 - Yalnızca sana verilen klasörde çalış. Başka klasöre dokunman gerekiyorsa bunu raporda öner, kendin yapma.
-- **Commit atma.** Commit'leri ana oturum haftalık plana göre atar (kural 5: commit'ler en az 5 farklı haftaya yayılmalı).
+- **Commit atma.** Commit'leri öğrenci kendi adıyla atar (Git geçmişi savunma katsayısına girer; bkz. CLAUDE.md "Git iş akışı").
 - Plandaki haftanın önüne geçme. Sana verilen işi bitir, sonraki haftanın işine başlama.
 - eBPF bu bulut konteynerinde çalışmaz; gerçek çalıştırma öğrencinin Ubuntu 26.04 VM'inde (çekirdek 7.0; bcc programları `cflags=["-fms-extensions"]` ile derlenir, bkz. docs/ortam.md) yapılır. Burada sözdizimini kontrol et ve sahte/örnek verilerle test et. VM'de çalıştırılacak komutları raporda açıkça yaz.
 - Yalnızca öğrencinin kendi VM'ini izleyen kod yaz; başka sistemleri, okul ağını ya da internetteki sunucuları hedefleme.

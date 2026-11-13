@@ -39,22 +39,31 @@ TESLIMLER = [
 HEDEF_HAFTA = 5  # Kural 5: commit geçmişi en az 5 farklı haftaya yayılmalı
 
 
-def commit_tarihleri(ref):
-    """git log'dan her commit'in yazar tarihini (author date) döndürür.
+YZ_YAZARI = "Claude"  # YZ'nin attığı commit'lerin yazar adı
+
+
+def commitler(ref):
+    """git log'dan her commit için (yazar tarihi, yazar adı) döndürür.
 
     GitHub'ın commit listesinde gösterdiği tarih yazar tarihidir; hoca da
-    büyük ihtimalle ona bakacağı için onu sayıyoruz.
+    büyük ihtimalle ona bakacağı için onu sayıyoruz. Yazar adını da alıyoruz,
+    çünkü savunma katsayısı Git geçmişine bakıyor ve öğrencinin kendi
+    commit'leri ayrıca görünmeli.
     """
     cikti = subprocess.run(
-        ["git", "log", ref, "--format=%ad", "--date=short"],
+        ["git", "log", ref, "--format=%ad|%an", "--date=short"],
         capture_output=True, text=True, check=True,
     ).stdout
-    return [date.fromisoformat(satir) for satir in cikti.split()]
+    sonuc = []
+    for satir in cikti.splitlines():
+        tarih, yazar = satir.split("|", 1)
+        sonuc.append((date.fromisoformat(tarih), yazar))
+    return sonuc
 
 
-def haftalara_say(tarihler):
+def haftalara_say(liste):
     """Her (yıl, hafta) çiftinde kaç commit olduğunu sayar."""
-    return Counter(t.isocalendar()[:2] for t in tarihler)
+    return Counter(t.isocalendar()[:2] for t, _ in liste)
 
 
 def main():
@@ -63,11 +72,13 @@ def main():
     ap.add_argument("--bugun", type=date.fromisoformat, default=date.today())
     args = ap.parse_args()
 
-    sayac = haftalara_say(commit_tarihleri(args.ref))
+    hepsi = commitler(args.ref)
+    sayac = haftalara_say(hepsi)
+    ogrenci = haftalara_say([c for c in hepsi if c[1] != YZ_YAZARI])
     bu_hafta = args.bugun.isocalendar()[:2]
 
     print(f"Bugün: {args.bugun}  (ISO hafta {bu_hafta[1]})\n")
-    print(f"{'Hafta':<6} {'Plan':<6} {'Commit':>6}  Durum      İş")
+    print(f"{'Hafta':<6} {'Plan':<6} {'Commit':>6} {'Senin':>5}  Durum      İş")
     for yil, hafta, kod, is_ in PLAN:
         n = sayac.get((yil, hafta), 0)
         if (yil, hafta) == bu_hafta:
@@ -76,14 +87,19 @@ def main():
             durum = "ileride"
         else:
             durum = "tamam" if n else "BOŞ!"
-        print(f"W{hafta:<5} {kod:<6} {n:>6}  {durum:<10} {is_}")
+        m = ogrenci.get((yil, hafta), 0)
+        print(f"W{hafta:<5} {kod:<6} {n:>6} {m:>5}  {durum:<10} {is_}")
 
     farkli = len(sayac)
     print(f"\nCommit'li farklı hafta: {farkli} / hedef {HEDEF_HAFTA}"
           + ("  ✓" if farkli >= HEDEF_HAFTA else ""))
 
+    print(f"Senin commit'lerinin olduğu hafta: {len(ogrenci)}")
+
     if sayac.get(bu_hafta, 0) == 0:
         print("UYARI: Bu hafta henüz commit yok. Hafta Pazar akşamı kapanıyor.")
+    elif ogrenci.get(bu_hafta, 0) == 0:
+        print("NOT: Bu haftaki commit'lerin yazarı sen değilsin; VM'den kendi adınla commit'le.")
 
     # Henüz geçmemiş ilk teslimi bul
     for ad, gun in TESLIMLER:
