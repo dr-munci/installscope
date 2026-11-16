@@ -197,8 +197,9 @@ def olay_sozlugu(ev):
         "type": TIPLER.get(ev.tip, "?"),
         "detail": detay_olustur(ev),
     }
-    if ev.tip == 2:  # openat: yazma amaçlı mı açıldı?
+    if ev.tip == 2:  # open/openat: yazma amaçlı mı, başarılı mı?
         d["write"] = bool((ev.bayrak & O_ACCMODE) or (ev.bayrak & O_CREAT))
+        d["ret"] = ev.sonuc  # ≥0: dosya tanımlayıcı, <0: -errno (ör. -2 = ENOENT)
     return d
 
 

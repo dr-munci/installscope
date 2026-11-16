@@ -175,7 +175,8 @@ def main():
     tekerlek = os.path.join(dizin, "wheelhouse")
     if a.kaynak == "yerel" and not os.path.isdir(tekerlek):
         print(f"[hazırlık] {a.paket} ve bağımlılıkları {tekerlek} içine indiriliyor...")
-        kullanici_olarak([sys.executable, "-m", "pip", "download", "-q", "-d", tekerlek, a.paket],
+        # Ubuntu'nun sistem Python'unda pip yok; indirmeyi geçici bir venv'in pip'i yapar.
+        kullanici_olarak([temiz_venv(dizin), "download", "-q", "-d", tekerlek, a.paket],
                          check=True)
 
     os.makedirs(a.cikti_dizin, exist_ok=True)

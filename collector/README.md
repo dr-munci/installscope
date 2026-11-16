@@ -46,7 +46,7 @@ Ctrl+C ya da `kill <collector pid>` (SIGTERM) gelirse collector izlenen komuta �
 ```json
 {"type": "start", "pid": 4501, "detail": "/home/u/deneme/bin/pip install requests"}
 {"ts_ns": 123, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "exec", "detail": "/home/u/deneme/bin/pip"}
-{"ts_ns": 456, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "open", "detail": "/etc/hosts", "write": false}
+{"ts_ns": 456, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "open", "detail": "/etc/hosts", "write": false, "ret": 3}
 {"ts_ns": 789, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "connect", "detail": "151.101.0.223:443"}
 {"type": "lost", "detail": 12}
 {"type": "end", "pid": 4501, "detail": 0, "lost": 12, "sure_s": 4.21, "durduruldu": false}
@@ -54,8 +54,8 @@ Ctrl+C ya da `kill <collector pid>` (SIGTERM) gelirse collector izlenen komuta �
 
 ## Sınırlar (bilerek)
 
-- `openat` girişte yakalanır; açma başarısız olduysa da kaydedilir (dönüş değeri v1'de).
-- `open`, `openat2`, `creat` gibi diğer dosya çağrıları ve UNIX soketleri yok.
+- `openat` `raw_syscalls` ile yakalanır (çekirdek 7.0'daki `sys_enter_openat` sorunu için bkz. [docs/ortam.md](../docs/ortam.md)); `ret` alanı dönüş değeridir (<0 ise açma başarısız). Çağrı numaraları x86_64'e göredir.
+- `openat2`, `creat` gibi diğer dosya çağrıları ve UNIX soketleri yok.
 - Durdurmada yalnızca kök komuta sinyal gönderilir; onun çocuklarını kök kendisi sonlandırır (pip böyle yapar).
 
 ## İlk deneme (09.11, VM)

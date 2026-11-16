@@ -25,7 +25,8 @@ struct olay {
     u32  pid;         // process kimliği (tgid; thread'ler aynı pid'i paylaşır)
     u32  ppid;        // ebeveyn process (real_parent->tgid)
     u32  tip;         // TIP_EXEC / TIP_OPEN / TIP_CONNECT
-    u32  bayrak;      // openat bayrakları (okuma mı yazma mı)
+    u32  bayrak;      // open/openat bayrakları (okuma mı yazma mı)
+    s32  sonuc;       // openat: dönüş değeri (≥0 dosya tanımlayıcı, <0 -errno)
     u16  aile;        // connect: adres ailesi
     u16  port;        // connect: port (ağ bayt sırasıyla)
     u8   adres[16];   // connect: IPv4 (ilk 4 bayt) ya da IPv6 adresi
@@ -36,7 +37,7 @@ struct olay {
 BPF_PERF_OUTPUT(olaylar);                 // kullanıcı alanına olay kanalı
 BPF_HASH(izlenen, u32, u32, 16384);       // kurulum ağacındaki PID'ler
 BPF_PERCPU_ARRAY(tampon, struct olay, 1); // olayı hazırlamak için çalışma alanı
-// Neden tampon: struct olay 320 bayt. eBPF yığını 512 bayt ile sınırlı;
+// Neden tampon: struct olay ~330 bayt. eBPF yığını 512 bayt ile sınırlı;
 // olayı yığında değil CPU başına ayrılmış bu alanda hazırlamak daha güvenli.
 
 // Şu anki process kurulum ağacında mı?
@@ -103,16 +104,63 @@ TRACEPOINT_PROBE(sched, sched_process_exec) {
 #endif
 
 #ifdef IZLE_OPEN
-// openat çağrısı: dosya açma isteği (girişte yakalıyoruz; sonucu v0'da yok).
-TRACEPOINT_PROBE(syscalls, sys_enter_openat) {
+// Dosya açma: openat sistem çağrısı.
+//
+// Neden syscalls:sys_enter_openat DEĞİL: Çekirdek 7.0'da bu tracepoint dosya
+// adını kullanıcı belleğinden olayın içine kendisi kopyalıyor (format dosyasında
+// yeni "__filename_val" alanı). Bizim bcc programımız bu tracepoint'ten olayların
+// çoğunu alamadı: strace 99 openat sayarken biz 0 yakaladık (docs/ortam.md).
+//
+// Bunun yerine her sistem çağrısında tetiklenen raw_syscalls tracepoint'lerini
+// kullanıyoruz. Bunlarda dize kopyalama yok; yalnızca çağrı numarası ve
+// argümanlar var. Girişte dosya adının ADRESİNİ saklıyoruz, çıkışta o
+// adresten adı okuyoruz. Çıkışta çekirdek adı zaten okumuş olduğu için
+// sayfa bellektedir ve okuma başarılı olur. Ayrıca dönüş değerini (açma
+// başarılı mı) de öğrenmiş oluyoruz.
+//
+// Neden yalnızca openat: glibc'nin open() fonksiyonu da openat sistem
+// çağrısını kullanır (strace'te 100 satırın hepsi openat'tı). Eski open
+// çağrısını da eklemek dallanma getiriyor; ilk denemede derleyicinin
+// birleştirdiği dallar eBPF doğrulayıcısına takıldı.
+//
+// Çağrı numarası x86_64 içindir (VM amd64).
+#define CAGRI_OPENAT 257
+
+struct istek {
+    u64 dosya;   // dosya adının kullanıcı alanındaki adresi
+    u32 bayrak;  // açma bayrakları
+};
+BPF_HASH(acik_istek, u32, struct istek, 16384);  // thread kimliği → bekleyen açma
+
+// openat(dizin, dosya, bayrak, kip): args[1] = dosya, args[2] = bayrak
+TRACEPOINT_PROBE(raw_syscalls, sys_enter) {
+    if (args->id != CAGRI_OPENAT)
+        return 0;  // en ucuz kontrol önce: diğer tüm sistem çağrıları burada döner
     if (!izleniyor_mu())
         return 0;
-    struct olay *o = olay_baslat(TIP_OPEN);
-    if (!o)
+    struct istek i = {};
+    i.dosya = args->args[1];
+    i.bayrak = args->args[2];
+    u32 tid = bpf_get_current_pid_tgid();  // alt 32 bit = thread kimliği
+    acik_istek.update(&tid, &i);
+    return 0;
+}
+
+TRACEPOINT_PROBE(raw_syscalls, sys_exit) {
+    if (args->id != CAGRI_OPENAT)
         return 0;
-    o->bayrak = args->flags;
-    bpf_probe_read_user_str(&o->detay, sizeof(o->detay), args->filename);
-    olaylar.perf_submit(args, o, sizeof(*o));
+    u32 tid = bpf_get_current_pid_tgid();
+    struct istek *i = acik_istek.lookup(&tid);
+    if (!i)
+        return 0;  // girişini görmediğimiz (izlenmeyen) bir çağrı
+    struct olay *o = olay_baslat(TIP_OPEN);
+    if (o) {
+        o->bayrak = i->bayrak;
+        o->sonuc = args->ret;
+        bpf_probe_read_user_str(&o->detay, sizeof(o->detay), (const char *)i->dosya);
+        olaylar.perf_submit(args, o, sizeof(*o));
+    }
+    acik_istek.delete(&tid);
     return 0;
 }
 #endif

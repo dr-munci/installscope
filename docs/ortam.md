@@ -59,3 +59,35 @@ sudo timeout -s INT 5 python3 ~/fs_bayraksiz.py 2>&1 | grep -E "Calisiyor|Failed
 Tek değişken bayrak olduğu için neden doğrulandı.
 
 **Sonuç:** Hazır `*-bpfcc` araçları (execsnoop, opensnoop, tcpconnect) bu çekirdekte kullanılamıyor. Collector bu yüzden baştan kendi bcc programımız olarak yazılacak ve hep `-fms-extensions` ile derlenecek. Esin kaynağı olarak bu araçların kaynak kodu okunmaya devam edecek.
+
+## Karşılaşılan sorun 2: `syscalls:sys_enter_openat` olayları gelmiyor (16.11)
+
+**Belirti:** M1'de aynı kurulum için `open` sayısı tekrardan tekrara 42 ile 886 arasında değişti (`exec` ve `connect` sabitti). Aynı Python komutunda strace ile collector'ı karşılaştırdım:
+
+| Araç | `openat` sayısı |
+|---|---|
+| `strace -f -e trace=openat` | 99 |
+| collector (3 deneme) | 0, 0, 0 (`exec` olayı yakalandı) |
+| `bpftrace` aynı tracepoint, `comm == "python3"` | 171 (Python komutu tırnak hatasıyla başarısız oldu, ama olaylar geldi) |
+
+**Bulgu:** Çekirdek 7.0'da `sys_enter_openat` formatına yeni bir alan eklenmiş:
+```
+field:__data_loc char[] __filename_val;	offset:48;	size:4;	signed:0;
+```
+Çekirdek artık dosya adını kullanıcı belleğinden olayın içine kendisi kopyalıyor. Olaylar çekirdekte üretiliyor (bpftrace görüyor), ama bizim bcc programımıza bu tracepoint'ten olayların çoğu ulaşmadı. `connect` tracepoint'inde dize alanı yok ve o etkilenmedi.
+
+**Çözüm:** `openat` artık `raw_syscalls:sys_enter` + `raw_syscalls:sys_exit` ile yakalanıyor (çağrı numarası 257, x86_64). Eski `open` çağrısı eklenmedi: glibc'nin `open()` fonksiyonu da `openat` kullanıyor (strace'teki 100 satırın hepsi `openat`). İlk denemede `open` için eklenen dal eBPF doğrulayıcısına takıldı (`dereference of modified ctx ptr`): derleyici iki dalı birleştirip olay verisini değişken konumdan okuyordu. Girişte dosya adının adresi saklanıyor, çıkışta okunuyor; çekirdek adı o sırada zaten okumuş olduğu için sayfa bellekte. Yan kazanç: dönüş değeri (`ret`) de kaydediliyor, başarısız açmalar ayırt edilebiliyor.
+
+**Bedel:** raw_syscalls her sistem çağrısında, her process için tetiklenir. İlk satırda çağrı numarası kontrol edilip hemen dönülüyor, ama bu maliyet M1'e yansıyacak.
+
+**Doğrulama (16.11):** aynı komut, `python3 -c "import json, email.parser, http.client, xml.dom.minidom"`:
+
+| Araç | `openat` |
+|---|---|
+| `strace -f -e trace=openat` | 99 |
+| collector (raw_syscalls) | 99, kayıp 0 |
+
+İlk iki olay ikisinde de aynı: `/etc/ld.so.cache` ve `/usr/lib/x86_64-linux-gnu/libm.so.6` (dinamik bağlayıcının açılışı). Olaylarda artık `"ret": 3` gibi dönüş değeri de var.
+
+**Sonuç:** 16.11 öncesi M1 ölçümündeki (`bench/sonuclar/m1_ag_20261116_1102.csv`) `open` sayıları geçersiz; süreler eski yöntemle ölçüldüğü için M1 yeni yöntemle tekrarlandı.
+
