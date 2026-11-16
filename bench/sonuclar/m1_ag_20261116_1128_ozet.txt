@@ -1,0 +1,3 @@
+kapalı: n=5  ortalama=4.390 s  std=0.273 s  min=4.123  max=4.745
+açık  : n=5  ortalama=5.162 s  std=0.717 s  min=4.603  max=6.367
+izleme maliyeti: %17.6 (açık ortalaması / kapalı ortalaması − 1)

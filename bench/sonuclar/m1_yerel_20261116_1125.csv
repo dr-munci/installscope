@@ -1,0 +1,11 @@
+tekrar,sira,mod,kaynak,paket,sure_s,cikis_kodu,exec,open,connect,kayip,derleme_s
+1,1,kapali,yerel,requests,4.012,0,,,,,
+1,2,acik,yerel,requests,3.697,0,9,1062,0,0,5.432
+2,3,acik,yerel,requests,2.974,0,9,1062,0,0,4.025
+2,4,kapali,yerel,requests,3.152,0,,,,,
+3,5,kapali,yerel,requests,2.71,0,,,,,
+3,6,acik,yerel,requests,3.616,0,9,1062,0,0,4.581
+4,7,acik,yerel,requests,3.356,0,9,1062,0,0,3.523
+4,8,kapali,yerel,requests,3.127,0,,,,,
+5,9,kapali,yerel,requests,2.72,0,,,,,
+5,10,acik,yerel,requests,3.123,0,9,1062,0,0,4.96
