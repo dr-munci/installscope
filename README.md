@@ -66,3 +66,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | H1 | `collector/deneme_exec.py`, `docs/ortam.md` | derleme hatasının nedenini (`-fms-extensions`) bulma ve deneme programı; VM'de çalıştırma ve doğrulama tarafımdan |
 | H2 | `collector/izleyici.c`, `collector/collector.py` | collector v0 kodu ve yorumları; VM'de çalıştırma ve doğrulama tarafımdan |
 | H2 | `CLAUDE.md` (ders tablosu kuralları, Git iş akışı), `tools/takip.py` | kuralların eklenmesi ve takip betiğinin yazar sayımı; Git iş akışı kararı tarafımdan |
+| W47 | `collector/` v1 (ayar dosyası, durdurma), `bench/m1_maliyet.py` | kod taslağı ve yorumlar; VM'de çalıştırma, ölçüm ve doğrulama tarafımdan |

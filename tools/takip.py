@@ -19,9 +19,9 @@ from datetime import date
 # hafta" dediği için takvim haftasını kullanmak en savunulabilir seçim.
 PLAN = [
     (2026, 45, "H1", "Repo iskeleti, README (YZ beyanı), K1 önerisi"),
-    (2026, 46, "H1/H2", "K1 teslimi (12.11); VM'de bcc kurulumu; collector başlangıcı"),
-    (2026, 47, "H2", "Collector v0: execve + openat + connect tek JSONL"),
-    (2026, 48, "H3", "M1 ölçümü (5+5 tekrar, CSV); K2 teslimi (26.11)"),
+    (2026, 46, "H1/H2", "K1 teslimi (12.11); VM'de bcc kurulumu; collector v0"),
+    (2026, 47, "H2/H3", "Collector v1 (ayar dosyası, Ctrl+C); M1 betiği"),
+    (2026, 48, "H3", "M1 ölçümleri ve yorum; K2 teslimi (26.11)"),
     (2026, 49, "H4", "Process ağacı (büküm), orphan işaretleme"),
     (2026, 50, "H5", "Pano v0.5, video, ara rapor; K3 teslimi (10.12)"),
     (2026, 51, "H6", "M2 (npm/pip/apt), strace ve /proc kanıtı"),

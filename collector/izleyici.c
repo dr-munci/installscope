@@ -83,6 +83,12 @@ TRACEPOINT_PROBE(sched, sched_process_exit) {
     return 0;
 }
 
+// Aşağıdaki üç probe, collector.py'nin ayar dosyasına göre verdiği
+// -DIZLE_EXEC / -DIZLE_OPEN / -DIZLE_CONNECT tanımlarıyla açılır.
+// Tanımlanmayan tipin kodu önişlemcide silinir; bcc onu hiç bağlamaz,
+// yani o olay için çekirdekte hiçbir iş yapılmaz (ör. M1'de open kapatılabilir).
+
+#ifdef IZLE_EXEC
 // execve başarılı oldu: yeni program yüklendi.
 TRACEPOINT_PROBE(sched, sched_process_exec) {
     if (!izleniyor_mu())
@@ -94,7 +100,9 @@ TRACEPOINT_PROBE(sched, sched_process_exec) {
     olaylar.perf_submit(args, o, sizeof(*o));
     return 0;
 }
+#endif
 
+#ifdef IZLE_OPEN
 // openat çağrısı: dosya açma isteği (girişte yakalıyoruz; sonucu v0'da yok).
 TRACEPOINT_PROBE(syscalls, sys_enter_openat) {
     if (!izleniyor_mu())
@@ -107,7 +115,9 @@ TRACEPOINT_PROBE(syscalls, sys_enter_openat) {
     olaylar.perf_submit(args, o, sizeof(*o));
     return 0;
 }
+#endif
 
+#ifdef IZLE_CONNECT
 // connect çağrısı: yalnızca IPv4/IPv6 bağlantılarını kaydediyoruz
 // (yerel UNIX soketleri ağ bağlantısı değil).
 TRACEPOINT_PROBE(syscalls, sys_enter_connect) {
@@ -131,3 +141,4 @@ TRACEPOINT_PROBE(syscalls, sys_enter_connect) {
     olaylar.perf_submit(args, o, sizeof(*o));
     return 0;
 }
+#endif

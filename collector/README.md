@@ -6,6 +6,7 @@ bcc ile `execve`, `openat` ve `connect` olaylarını yakalayıp tek bir JSONL ak
 |---|---|
 | `izleyici.c` | Çekirdekte çalışan eBPF programı. Yalnızca kurulum ağacındaki process'lerin olaylarını gönderir. |
 | `collector.py` | eBPF'i yükler, komutu başlatır, olayları JSONL'ye yazar. |
+| `ayar.json` | Hangi olay tiplerinin izleneceği ve perf buffer boyutu. |
 | `deneme_exec.py` | H1 ortam denemesi (bkz. [docs/ortam.md](../docs/ortam.md)). |
 
 ## Kullanım (VM'de, depo kökünden)
@@ -17,6 +18,21 @@ sudo python3 collector/collector.py --root -o apt.jsonl -- apt-get install -y co
 
 - Komut, `sudo`'yu çağıran kullanıcı olarak çalışır. `--root` verilirse root kalır (apt için).
 - `head -3 pip.jsonl` ile ilk satırlara bakılabilir.
+
+## Ayar dosyası (`ayar.json`)
+
+```json
+{"olaylar": ["exec", "open", "connect"], "perf_sayfa": 256}
+```
+- `olaylar`: izlenecek tipler. Listede olmayan tipin probe'u `#ifdef` ile derlenmez, çekirdeğe hiç bağlanmaz.
+- `perf_sayfa`: CPU başına perf buffer boyutu (sayfa, 2'nin kuvveti). Büyüdükçe kayıp azalır, bellek artar.
+- Başka dosya: `--ayar yol.json`.
+- Dosya yoksa, bozuksa, bilinmeyen tip ya da geçersiz sayfa sayısı varsa anlamlı bir mesajla çıkış kodu 3.
+- **KG5 (`chmod 000`):** collector root çalıştığı için `open()` izin hatası vermez (root `CAP_DAC_OVERRIDE` ile izinleri atlar). Bu yüzden sahibin okuma bitini kendimiz denetleyip dosyayı reddediyoruz.
+
+## Durdurma
+
+Ctrl+C ya da `kill <collector pid>` (SIGTERM) gelirse collector izlenen komuta önce SIGINT gönderir, 5 saniyede bitmezse SIGKILL. `end` satırı yine yazılır ve `"durduruldu": true` olur. (`kill -9` yakalanamaz; o durumda KG1 geçerli: dosyada son satıra kadar her şey vardır, `end` satırı olmaz.)
 
 ## Nasıl çalışır
 
@@ -33,14 +49,14 @@ sudo python3 collector/collector.py --root -o apt.jsonl -- apt-get install -y co
 {"ts_ns": 456, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "open", "detail": "/etc/hosts", "write": false}
 {"ts_ns": 789, "pid": 4501, "ppid": 4500, "comm": "pip", "type": "connect", "detail": "151.101.0.223:443"}
 {"type": "lost", "detail": 12}
-{"type": "end", "pid": 4501, "detail": 0, "lost": 12}
+{"type": "end", "pid": 4501, "detail": 0, "lost": 12, "sure_s": 4.21, "durduruldu": false}
 ```
 
-## v0 sınırları (bilerek)
+## Sınırlar (bilerek)
 
 - `openat` girişte yakalanır; açma başarısız olduysa da kaydedilir (dönüş değeri v1'de).
 - `open`, `openat2`, `creat` gibi diğer dosya çağrıları ve UNIX soketleri yok.
-- Collector Ctrl+C ile durdurulursa çalışan komut kendi başına devam eder.
+- Durdurmada yalnızca kök komuta sinyal gönderilir; onun çocuklarını kök kendisi sonlandırır (pip böyle yapar).
 
 ## İlk deneme (09.11, VM)
 
@@ -66,4 +82,4 @@ Bulunan hata: ilk `open` satırları (`/etc/nsswitch.conf`, `/etc/passwd`, `/pro
 4. **exec etmeyen process'ler var:** `cut` ve `tr`'nin ebeveyni 12766 için exec satırı yok; `lsb_release` kabuk betiğinin fork ettiği bir alt kabuk. → Ağaç düğümleri yalnızca exec'ten değil, her olayın pid/ppid'inden oluşturulmalı (H4).
 5. **open sayısı 657 → 466:** farkın yalnızca 3'ü düzeltmeden. Geri kalanı büyük ihtimalle ilk çalıştırmada oluşan `.pyc` önbelleği. → M1/M2'de her tekrar temiz bir venv ile yapılmalı.
 
-Durum: **v0 VM'de çalışıyor (H2).**
+Durum: **v1 (W47):** ayar dosyası, Ctrl+C/SIGTERM'de komutu durdurma, `end` satırında süre. VM'de deneme bekleniyor.
