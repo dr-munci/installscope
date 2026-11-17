@@ -84,6 +84,15 @@ Git geçmişi savunma katsayısına girdiği için `main`'deki commit'lerin **ya
 4. VM'de üretilen sonuçlar (CSV, gözlem notları) doğrudan öğrencinin commit'leridir.
 5. Geçmiş yeniden yazılmaz. 03.11–09.11 arasındaki ilk 8 commit'in yazarı Claude'dur; bu README'deki YZ beyanında belirtilir.
 
+## Çoklu makine kuralları (VM + Windows)
+Depo iki yerde klonlanır: **Ubuntu VM** (çalıştırma ve ölçüm) ve **Windows** (okuma, rapor yazma, pano). Git ikisi arasındaki köprüdür.
+1. **Satır sonları LF'dir.** `.gitattributes` bunu zorunlu kılar (`* text=auto eol=lf`). CSV sonuçları `-text` ile korunur, Git onlara dokunmaz. Claude `.gitattributes`'ı gevşetmez; yeni dosya türü eklenirse kurala uyup uymadığına bakar.
+2. **Ölçüm ve çalıştırma yalnızca VM'de yapılır.** collector, bench/, strace, `/proc` ve kırılma testleri Windows'ta çalıştırılmaz. Claude, Windows'ta çalıştırılacak komut önermez; yalnızca `tree/` ve `dashboard/` gibi platformdan bağımsız parçalar Windows'ta denenebilir.
+3. **Sonuç dosyalarına elle dokunulmaz.** `bench/sonuclar/` altındaki CSV ve özetler VM'de üretilir; Windows'ta düzenlenmez, Claude da onları yeniden yazmaz.
+4. **Tek kimlik.** Her iki makinede `git config user.name` ve `user.email` aynıdır; `main`'deki commit'ler tek yazar adıyla görünür.
+5. **Önce pull, sonra push.** Her çalışmaya `git pull` ile başlanır, bitince push edilir. Aynı dosya iki makinede aynı anda değiştirilmez.
+6. **Yollar ve adlar taşınabilir.** Dosya adlarında `: * ? " < > |` ve Türkçe harf yok; yalnızca büyük/küçük harfle ayrılan iki dosya olmaz. Kodda yol ayırıcısı için `os.path`/`pathlib` kullanılır, ama Linux'a özgü yollar (`/proc`, `/sys`) collector ve bench içinde kalabilir.
+
 ## Haftalık plan
 - **H1 (→12.11):** Repo iskeleti, README (YZ beyanı dahil), docs/K1-oneri.md (Heilmeier soruları, plan, risk ve B planı)
 - **H2:** Collector v0: üç olay tipi tek JSONL akışında

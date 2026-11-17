@@ -1,0 +1,14 @@
+# Satır sonu kuralı: depo hem Ubuntu VM'de hem Windows'ta klonlanıyor.
+# Metin dosyaları her makinede LF ile tutulur; böylece Windows'tan gelen
+# CRLF, Python betiklerinin "#!/usr/bin/env python3" satırını bozmaz ve
+# her satırı "değişmiş" gösteren anlamsız diff'ler oluşmaz.
+* text=auto eol=lf
+
+# Ölçüm sonuçları VM'de üretilen ham veridir; Git bunlara hiç dokunmaz.
+# (Python'un csv modülü satırları CRLF ile yazar; olduğu gibi saklanır.)
+*.csv -text
+
+# İkili dosyalar
+*.png binary
+*.jpg binary
+*.mp4 binary

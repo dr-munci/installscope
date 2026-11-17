@@ -41,6 +41,22 @@ sudo apt install bpfcc-tools python3-bpfcc linux-headers-$(uname -r)
 
 eBPF programı yüklemek root yetkisi istediği için collector `sudo` ile çalıştırılır. Yalnızca kendi VM'imi izlerim.
 
+### Windows'ta klonlama
+
+Depo Windows'ta da açılabilir (kod okuma, rapor yazma, panoyu tarayıcıda görme), ama **collector, ölçümler ve kırılma testleri yalnızca Linux VM'de çalışır.** Satır sonları `.gitattributes` ile LF'e sabitlenmiştir; Windows'ta klonlamadan önce Git'in satır sonlarını değiştirmemesi için:
+
+```bash
+git config --global core.autocrlf false
+```
+
+| Windows'ta | Yalnızca VM'de |
+|---|---|
+| Kodu okumak, `docs/` yazmak | collector (eBPF, root) |
+| `dashboard/index.html`'i açmak | M1–M3 ölçümleri, strace, `/proc` |
+| `tree/` ile örnek JSONL denemek | Kırılma testleri, CSV üretimi |
+
+`bench/sonuclar/` altındaki sonuçlar VM'de üretilen ham veridir ve elle düzenlenmez.
+
 ## Durum
 
 | Aşama | Tarih | Durum |
