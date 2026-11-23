@@ -1,0 +1,8 @@
+tarih: 2026-11-21 19:32
+cekirdek: 7.0.0-43-generic
+isletim_sistemi: Ubuntu 26.04.1 LTS
+python: 3.14.4
+bcc: 0.35.0+ds-1ubuntu2
+cpu_sayisi: 4
+paket: requests, kaynak: ag, tekrar: 10, isinma: 1
+ayar: {"olaylar": ["exec", "open", "connect"], "perf_sayfa": 256}

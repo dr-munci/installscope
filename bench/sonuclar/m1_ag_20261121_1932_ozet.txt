@@ -1,0 +1,4 @@
+kapalı: n=10  ortalama=7.377 s  medyan=5.784 s  std=4.848 s  min=5.587  max=21.153
+açık  : n=10  ortalama=6.430 s  medyan=6.272 s  std=0.703 s  min=5.625  max=7.741
+izleme maliyeti: ortalamaya göre %-12.8, medyana göre %8.5
+Welch t = -0.61, serbestlik = 9.4, p = 0.555 → fark gürültüden ayırt edilemiyor (p ≥ 0,05)
