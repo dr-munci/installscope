@@ -67,3 +67,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | H2 | `collector/izleyici.c`, `collector/collector.py` | collector v0 kodu ve yorumları; VM'de çalıştırma ve doğrulama tarafımdan |
 | H2 | `CLAUDE.md` (ders tablosu kuralları, Git iş akışı), `tools/takip.py` | kuralların eklenmesi ve takip betiğinin yazar sayımı; Git iş akışı kararı tarafımdan |
 | W47 | `collector/` v1 (ayar dosyası, durdurma), `bench/m1_maliyet.py` | kod taslağı ve yorumlar; VM'de çalıştırma, ölçüm ve doğrulama tarafımdan |
+| W48 | `bench/istatistik.py`, `bench/m1_ozet.py`, M1 ısınma turu | istatistik kodu ve yorumları; p değeri tablo değerleriyle doğrulandı; ölçümler VM'de tarafımdan |

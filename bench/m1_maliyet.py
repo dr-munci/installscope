@@ -7,9 +7,10 @@ Her tekrarda:
   3. paket ya izlemesiz ya da collector altında kurulur ve süre ölçülür.
 Kapalı/açık sırası her tekrarda yer değiştirir (K-A, A-K, ...) ki
 "önce çalışan hep dezavantajlı" gibi bir sıra etkisi ortalamaya karışmasın.
+Ölçümden önce kaydedilmeyen bir ısınma turu (bir kapalı + bir açık) yapılır.
 
 Kullanım (VM'de, depo kökünden):
-    sudo python3 bench/m1_maliyet.py                 # PyPI'den, 5+5 tekrar
+    sudo python3 bench/m1_maliyet.py                 # PyPI'den, 10+10 tekrar
     sudo python3 bench/m1_maliyet.py --kaynak yerel  # önceden indirilmiş paketlerden
 
 Çıktı: bench/sonuclar/m1_<kaynak>_<tarih>.csv, aynı adla _ortam.txt ve _ozet.txt
@@ -20,21 +21,24 @@ import json
 import os
 import platform
 import shutil
-import statistics
 import subprocess
 import sys
 import time
 
 DEPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(DEPO, "collector"))
+sys.path.insert(0, os.path.join(DEPO, "bench"))
 import collector  # noqa: E402  (kullaniciya_don'u yeniden kullanmak için)
+from istatistik import ozet_metni  # noqa: E402
 
 COLLECTOR = os.path.join(DEPO, "collector", "collector.py")
 
 
 def arguman_al():
     ap = argparse.ArgumentParser(description="M1: izleme maliyeti ölçümü")
-    ap.add_argument("--tekrar", type=int, default=5, help="her mod için tekrar (≥5)")
+    ap.add_argument("--tekrar", type=int, default=10, help="her mod için tekrar (≥5)")
+    ap.add_argument("--isinma", type=int, default=1,
+                    help="kaydedilmeyen ısınma turu sayısı (her tur bir kapalı + bir açık)")
     ap.add_argument("--paket", default="requests")
     ap.add_argument("--kaynak", choices=["ag", "yerel"], default="ag",
                     help="ag: PyPI'den indir; yerel: önceden indirilmiş wheel'lerden")
@@ -142,25 +146,18 @@ def ortam_yaz(yol, a):
         f.write(f"python: {platform.python_version()}\n")
         f.write(f"bcc: {komut(['dpkg-query', '-W', '-f=${Version}', 'python3-bpfcc'])}\n")
         f.write(f"cpu_sayisi: {os.cpu_count()}\n")
-        f.write(f"paket: {a.paket}, kaynak: {a.kaynak}, tekrar: {a.tekrar}\n")
+        f.write(f"paket: {a.paket}, kaynak: {a.kaynak}, tekrar: {a.tekrar}, isinma: {a.isinma}\n")
         f.write(f"ayar: {json.dumps(collector.ayar_oku(a.ayar), ensure_ascii=False)}\n")
     sahibi_yap(yol)
 
 
-def ozet(satirlar):
-    """Mod başına ortalama, standart sapma ve izleme maliyetini (%) hesaplar."""
-    def sureler(mod):
-        return [r["sure_s"] for r in satirlar if r["mod"] == mod and r["cikis_kodu"] == 0]
-    k, a = sureler("kapali"), sureler("acik")
-    metin = []
-    for ad, x in (("kapalı", k), ("açık", a)):
-        if len(x) >= 2:
-            metin.append(f"{ad:6}: n={len(x)}  ortalama={statistics.mean(x):.3f} s  "
-                         f"std={statistics.stdev(x):.3f} s  min={min(x):.3f}  max={max(x):.3f}")
-    if len(k) >= 2 and len(a) >= 2:
-        fark = (statistics.mean(a) - statistics.mean(k)) / statistics.mean(k) * 100
-        metin.append(f"izleme maliyeti: %{fark:.1f} (açık ortalaması / kapalı ortalaması − 1)")
-    return "\n".join(metin)
+def tek_olcum(mod, i, a, dizin, tekerlek):
+    """Bir ölçüm: temiz venv, önbelleği boşalt, kur, süreyi ve sayıları döndür."""
+    komut = pip_komutu(temiz_venv(dizin), a, tekerlek)
+    sayfa_onbellegini_bosalt()
+    if mod == "kapali":
+        return olcum_kapali(komut)
+    return olcum_acik(komut, a, os.path.join(dizin, f"olay_{i}.jsonl"))
 
 
 def main():
@@ -184,6 +181,14 @@ def main():
     kok = os.path.join(a.cikti_dizin, f"m1_{a.kaynak}_{time.strftime('%Y%m%d_%H%M')}")
     ortam_yaz(kok + "_ortam.txt", a)
 
+    # Isınma: ilk ölçümler tutarlı biçimde yavaştı (16.11: yerel/kapalı ilk tekrar
+    # 4,0 s, diğerleri ~2,9 s). Diskteki Python dosyaları, DNS ve CPU frekansı
+    # ilk çalıştırmada "soğuk". Bu turlar ölçülür ama kaydedilmez.
+    for j in range(a.isinma):
+        for mod in ("kapali", "acik"):
+            r = tek_olcum(mod, 0, a, dizin, tekerlek)
+            print(f"[ısınma {j + 1}] {mod:6} {r['sure_s']} s (kaydedilmedi)")
+
     satirlar = []
     sira = 0
     for i in range(1, a.tekrar + 1):
@@ -191,12 +196,7 @@ def main():
         modlar = ["kapali", "acik"] if i % 2 else ["acik", "kapali"]
         for mod in modlar:
             sira += 1
-            komut = pip_komutu(temiz_venv(dizin), a, tekerlek)
-            sayfa_onbellegini_bosalt()
-            if mod == "kapali":
-                r = olcum_kapali(komut)
-            else:
-                r = olcum_acik(komut, a, os.path.join(dizin, f"olay_{i}.jsonl"))
+            r = tek_olcum(mod, i, a, dizin, tekerlek)
             r.update({"tekrar": i, "sira": sira, "mod": mod, "kaynak": a.kaynak, "paket": a.paket})
             satirlar.append(r)
             print(f"[{sira:2}/{2 * a.tekrar}] tekrar {i} {mod:6} {r['sure_s']} s"
@@ -212,7 +212,7 @@ def main():
         w.writerows(satirlar)
     sahibi_yap(kok + ".csv")
 
-    metin = ozet(satirlar)
+    metin = ozet_metni(satirlar)
     with open(kok + "_ozet.txt", "w", encoding="utf-8") as f:
         f.write(metin + "\n")
     sahibi_yap(kok + "_ozet.txt")
