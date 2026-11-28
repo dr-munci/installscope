@@ -6,7 +6,7 @@ Bütün çalıştırma ve ölçümler kendi bilgisayarımdaki VirtualBox VM'inde
 |---|---|
 | Sanallaştırma | VirtualBox |
 | İşletim sistemi | Ubuntu 26.04.1 LTS (Desktop) |
-| Çekirdek | `7.0.0-42-generic` |
+| Çekirdek | `7.0.0-42-generic` (ilk kurulum); 21.11'den itibaren `7.0.0-43-generic` (6.8 denemesi sırasında kurulan güncelleme, yeniden başlatmada devreye girdi) |
 | bcc | `bpfcc-tools`, `python3-bpfcc`, `libbpfcc` 0.35.0+ds-1ubuntu2 |
 | LLVM / clang (bcc'nin içinde) | `libllvm21`, `libclang-cpp21` 1:21.1.8-6ubuntu1 |
 | Python | 3.14.4 |

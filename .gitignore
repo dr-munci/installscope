@@ -14,3 +14,6 @@ bench/tmp/
 .vscode/
 .idea/
 *.swp
+
+# Elle yapılan strace denemelerinin çıktısı
+st.txt

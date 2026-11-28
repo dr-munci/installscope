@@ -46,7 +46,7 @@ eBPF programı yüklemek root yetkisi istediği için collector `sudo` ile çal�
 | Aşama | Tarih | Durum |
 |---|---|---|
 | K1: Öneri | 12.11 | [docs/K1-oneri.md](docs/K1-oneri.md) |
-| K2: Ortam ve ilk ölçüm | 26.11 | yapılacak |
+| K2: Ortam ve ilk ölçüm | 26.11 | [docs/K2-olcum.md](docs/K2-olcum.md) |
 | K3: Çalışan çekirdek (v0.5) | 10.12 | yapılacak |
 | K4–K5: Final | — | yapılacak |
 
@@ -68,3 +68,4 @@ Bu projede üretken yapay zekâ (Anthropic Claude, Claude Code aracılığıyla)
 | H2 | `CLAUDE.md` (ders tablosu kuralları, Git iş akışı), `tools/takip.py` | kuralların eklenmesi ve takip betiğinin yazar sayımı; Git iş akışı kararı tarafımdan |
 | W47 | `collector/` v1 (ayar dosyası, durdurma), `bench/m1_maliyet.py` | kod taslağı ve yorumlar; VM'de çalıştırma, ölçüm ve doğrulama tarafımdan |
 | W48 | `bench/istatistik.py`, `bench/m1_ozet.py`, M1 ısınma turu | istatistik kodu ve yorumları; p değeri tablo değerleriyle doğrulandı; ölçümler VM'de tarafımdan |
+| W48 | `docs/K2-olcum.md` | belge taslağı; ölçümler, sayılar ve son metin tarafımdan kontrol edildi |
